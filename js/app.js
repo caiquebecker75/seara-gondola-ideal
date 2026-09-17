@@ -453,5 +453,4 @@
     estado.participante.status = "cadastrado";
     irPara("tela-briefing");
   });
-  $("#btn-ver-painel").addEventListener("click", () => { window.location.href = "painel.html"; });
 })();

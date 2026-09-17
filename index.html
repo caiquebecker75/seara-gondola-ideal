@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monte sua gôndola ideal | Seara</title>
+<meta name="description" content="Experiência interativa de execução e positivação de sortimento. Monte a gôndola ideal da loja e compare com o planograma de referência.">
+<link rel="icon" href="assets/seara-logo.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div class="bola"></div><div class="bola-eco"></div>
+
+<!-- ============================ ABERTURA ============================ -->
+<section class="tela ativa" id="tela-abertura">
+  <div class="abertura">
+    <div class="abertura-conteudo">
+      <img class="logo" src="assets/seara-logo.png" alt="Seara">
+      <h1>Monte sua<br><em>gôndola ideal</em></h1>
+      <p class="chamada">Você recebe uma loja, um espaço limitado e o portfólio Seara inteiro na mão. Decida o que não pode faltar, quanto espaço dar para cada item e descubra o tamanho do seu gap de execução.</p>
+      <div class="passos">
+        <span>1. Cadastro</span>
+        <span>2. Escolha a loja</span>
+        <span>3. Monte a gôndola</span>
+        <span>4. Veja seus gaps</span>
+      </div>
+      <button class="btn" id="btn-comecar">Começar agora</button>
+      <p style="margin-top:22px;font-size:13px;opacity:.8" id="contador-participantes"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CADASTRO ============================ -->
+<section class="tela" id="tela-cadastro">
+  <header class="topo"><div class="limite">
+    <div class="topo-marca"><img src="assets/seara-logo.png" alt="Seara"><span>Monte sua gôndola ideal</span></div>
+    <span style="font-size:12px;opacity:.85" id="nome-evento"></span>
+  </div></header>
+
+  <div class="painel-central"><div class="limite">
+    <div class="cartao" style="max-width:760px;margin:0 auto">
+      <span class="tarja">Passo 1 de 4</span>
+      <h2 class="titulo-secao">Antes de jogar, quem é você?</h2>
+      <p class="subtitulo">Os dados são usados para montar o ranking do evento e enviar o seu diagnóstico de sortimento depois da convenção.</p>
+
+      <form class="formulario" id="form-cadastro" novalidate>
+        <div class="campo largo">
+          <label for="f-nome">Nome completo</label>
+          <input type="text" id="f-nome" autocomplete="name" placeholder="Seu nome e sobrenome">
+          <span class="erro" data-erro="f-nome"></span>
+        </div>
+        <div class="campo">
+          <label for="f-telefone">Telefone com DDD</label>
+          <input type="tel" id="f-telefone" inputmode="numeric" autocomplete="tel" placeholder="(11) 90000-0000" maxlength="16">
+          <span class="erro" data-erro="f-telefone"></span>
+        </div>
+        <div class="campo">
+          <label for="f-email">E-mail</label>
+          <input type="email" id="f-email" autocomplete="email" placeholder="voce@empresa.com.br">
+          <span class="erro" data-erro="f-email"></span>
+        </div>
+        <div class="campo">
+          <label for="f-empresa">Empresa ou rede</label>
+          <input type="text" id="f-empresa" placeholder="Onde você trabalha">
+          <span class="erro" data-erro="f-empresa"></span>
+        </div>
+        <div class="campo">
+          <label for="f-area">Sua área</label>
+          <select id="f-area">
+            <option value="">Selecione</option>
+            <option>Vendas</option>
+            <option>Trade marketing</option>
+            <option>Marketing</option>
+            <option>Distribuidor ou representante</option>
+            <option>Varejo</option>
+            <option>Promotor ou merchandising</option>
+            <option>Outra</option>
+          </select>
+          <span class="erro" data-erro="f-area"></span>
+        </div>
+        <div class="campo largo">
+          <div class="consentimento">
+            <input type="checkbox" id="f-lgpd">
+            <label for="f-lgpd" id="texto-lgpd"></label>
+          </div>
+          <span class="erro" data-erro="f-lgpd"></span>
+        </div>
+        <div class="campo largo" style="align-items:flex-start">
+          <button type="submit" class="btn vermelho" id="btn-cadastro">Continuar</button>
+        </div>
+      </form>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================ BRIEFING ============================ -->
+<section class="tela" id="tela-briefing">
+  <header class="topo"><div class="limite">
+    <div class="topo-marca"><img src="assets/seara-logo.png" alt="Seara"><span>Monte sua gôndola ideal</span></div>
+    <span style="font-size:12px;opacity:.85" id="ola-participante"></span>
+  </div></header>
+
+  <div class="painel-central"><div class="limite">
+    <span class="tarja">Passo 2 de 4</span>
+    <h2 class="titulo-secao">Qual loja você vai executar?</h2>
+    <p class="subtitulo">Cada formato tem um shopper, um espaço de gôndola e um sortimento certo. Escolha uma loja para receber o seu freezer.</p>
+    <div class="lojas" id="lista-lojas"></div>
+    <div style="margin-top:30px;text-align:center">
+      <button class="btn vermelho" id="btn-iniciar-jogo" disabled>Abrir a gôndola</button>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================ JOGO ============================ -->
+<section class="tela" id="tela-jogo">
+  <div class="barra-jogo"><div class="limite">
+    <div class="medidor">
+      <div class="item"><b id="jogo-loja">-</b><span>Loja em execução</span></div>
+      <div class="item"><b id="jogo-espacos">0 / 0</b><span>Espaços ocupados</span></div>
+      <div class="item"><b id="jogo-skus">0</b><span>SKUs no mix</span></div>
+      <div class="item" id="caixa-tempo"><b id="jogo-tempo">05:00</b><span>Tempo restante</span></div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="progresso"><i id="jogo-progresso"></i></div>
+      <button class="btn pequeno" id="btn-finalizar">Finalizar gôndola</button>
+    </div>
+  </div></div>
+
+  <div class="limite">
+    <div class="arena">
+      <div class="gondola-bloco">
+        <div class="gondola">
+          <div class="gondola-cabecalho">
+            <h2 id="titulo-gondola">Freezer da loja</h2>
+            <span id="aviso-formato"></span>
+          </div>
+          <div id="prateleiras"></div>
+        </div>
+        <p style="font-size:12px;color:var(--cinza);margin-top:12px" id="dica-gondola">
+          Toque em um produto do catálogo para colocar na gôndola. Toque no produto já exposto para tirar. Mais de um espaço para o mesmo item aumenta o bloco de venda dele.
+        </p>
+      </div>
+
+      <aside class="catalogo">
+        <h2>Portfólio Seara</h2>
+        <p class="dica"><span id="total-catalogo">0</span> SKUs reais do portfólio, com EAN de fábrica.</p>
+        <div class="busca"><input type="search" id="busca-sku" placeholder="Buscar produto, ex.: tekitos"></div>
+        <div class="filtros" id="filtros-cat"></div>
+        <div class="lista-skus" id="lista-skus"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ RESULTADO ============================ -->
+<section class="tela" id="tela-resultado">
+  <div class="faixa-resultado">
+    <div class="limite">
+      <img src="assets/seara-logo.png" alt="Seara" style="height:52px;margin:0 auto 18px">
+      <p style="text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:800;opacity:.85;margin:0" id="res-nome"></p>
+      <div class="placar" id="res-pontos">0<small>/1000</small></div>
+      <div class="medalha" id="res-nivel">Bronze</div>
+      <p style="max-width:560px;margin:18px auto 0;font-size:15px;opacity:.92" id="res-frase"></p>
+    </div>
+  </div>
+
+  <div class="resultado-corpo"><div class="limite">
+    <div class="blocos-nota" id="res-blocos"></div>
+
+    <div class="grade-resultado">
+      <div class="cartao">
+        <h3>O sortimento que você escolheu</h3>
+        <p class="apoio" id="res-resumo-escolha"></p>
+        <div class="mini-gondola" id="res-minha-gondola"></div>
+      </div>
+
+      <div class="cartao">
+        <h3>O que deveria estar nesta loja</h3>
+        <p class="apoio">Planograma de referência para o formato escolhido, com o espaço proporcional ao giro.</p>
+        <div class="mini-gondola" id="res-gondola-ideal"></div>
+      </div>
+
+      <div class="cartao largura-total">
+        <h3>Seus gaps de positivação</h3>
+        <p class="apoio" id="res-resumo-gaps"></p>
+        <div class="lista-gap" id="res-gaps"></div>
+      </div>
+
+      <div class="cartao">
+        <h3>O que entraria no lugar</h3>
+        <p class="apoio">Itens de alto giro do formato que ficaram fora do seu mix.</p>
+        <div class="lista-gap" id="res-sugestoes"></div>
+      </div>
+
+      <div class="cartao">
+        <h3>Onde você deu espaço demais</h3>
+        <p class="apoio">Itens com mais espaço do que o giro sustenta, ou fora do formato da loja.</p>
+        <div class="lista-gap" id="res-excessos"></div>
+      </div>
+
+      <div class="cartao largura-total">
+        <h3>Seu espaço contra a venda real da categoria</h3>
+        <p class="apoio">Share de espaço que você deu para cada categoria comparado com a base de referência de venda do formato.</p>
+        <div class="comparativo" id="res-share"></div>
+        <div class="legenda">
+          <span><i style="background:#E30613"></i>Sua gôndola</span>
+          <span><i style="background:#1B1512"></i>Base de referência de venda</span>
+        </div>
+      </div>
+
+      <div class="cartao largura-total">
+        <h3>Ranking do evento</h3>
+        <p class="apoio" id="res-resumo-ranking"></p>
+        <table class="tabela" id="res-ranking"></table>
+      </div>
+    </div>
+
+    <div class="acoes-fim">
+      <button class="btn vermelho" id="btn-jogar-de-novo">Jogar de novo</button>
+      <button class="btn linha escuro" id="btn-ver-painel" style="background:transparent;color:var(--carvao)">Painel de dados</button>
+    </div>
+
+    <p class="rodape-nota">
+      Nome, EAN e imagem dos produtos vêm do portfólio oficial publicado em seara.com.br.<br>
+      Índices de giro, preço e sortimento por formato são base de referência do jogo e podem ser trocados pelo sell out real da Seara no arquivo <code>js/data.js</code>.<br>
+      Experiência criada pela 75 LAB.
+    </p>
+  </div></div>
+</section>
+
+<div class="aviso-flutuante" id="aviso"></div>
+
+<script src="config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/cenarios.js"></script>
+<script src="js/motor.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

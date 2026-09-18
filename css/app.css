@@ -301,8 +301,9 @@ img { max-width: 100%; display: block; }
 
 /* ---------- arrastar e soltar ---------- */
 .sku, .vao.cheio { touch-action: none; }
-.sku img, .vao img { -webkit-user-drag: none; user-select: none; }
-body.arrastando { user-select: none; }
+.sku img, .vao img { -webkit-user-drag: none; }
+.gondola, .catalogo, .barra-jogo { user-select: none; -webkit-user-select: none; }
+body.arrastando { user-select: none; -webkit-user-select: none; }
 .vao.sobre { border-color: var(--vermelho); background: #fff; box-shadow: inset 0 0 0 3px var(--amarelo); }
 .vao.saindo { opacity: .35; }
 .fantasma {

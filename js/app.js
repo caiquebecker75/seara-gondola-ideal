@@ -361,6 +361,8 @@
           ativo = true;
           fantasma = criarFantasma(sku, e.clientX, e.clientY);
           document.body.classList.add("arrastando");
+          const sel = window.getSelection();
+          if (sel && sel.removeAllRanges) sel.removeAllRanges();
           if (origem.tipo === "slot") el.classList.add("saindo");
         }
         moverFantasma(fantasma, e.clientX, e.clientY);

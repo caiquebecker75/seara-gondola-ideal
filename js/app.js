@@ -270,14 +270,16 @@
       $("#lista-skus").innerHTML = `<p style="font-size:13px;color:var(--cinza)">Nenhum produto encontrado.</p>`;
       return;
     }
+    const variasMarcas = new Set(SKUS.map(x => x.marca).filter(Boolean)).size > 1;
     $("#lista-skus").innerHTML = lista.map(s => {
       const q = m.get(s.id) || 0;
-      const etiqueta = s.marca ? s.marca : CATEGORIAS[s.cat].nome;
+      const etiqueta = variasMarcas && s.marca ? s.marca : CATEGORIAS[s.cat].nome;
+      const apoio = s.ean ? "EAN " + s.ean : (s.linhaSite || (variasMarcas ? CATEGORIAS[s.cat].nome : s.marca || ""));
       return `<div class="sku ${q ? "dentro" : ""}" data-sku="${s.id}">
         <img src="${s.arquivo}" alt="${s.nome}" draggable="false" loading="lazy">
         <div class="txt">
           <b>${s.nome}</b>
-          <small>${s.ean ? "EAN " + s.ean : CATEGORIAS[s.cat].nome}</small>
+          <small>${apoio}</small>
           <span class="marca ${s.lancamento ? "novo" : ""}">${s.lancamento ? "Lançamento" : etiqueta}</span>
         </div>
         <div class="qtd">${q ? q + "x" : "+"}</div>

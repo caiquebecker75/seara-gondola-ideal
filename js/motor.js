@@ -162,7 +162,7 @@
         { chave: "share", nome: "Espaço proporcional à venda", pontos: Math.round(pC), max: 250,
           detalhe: "Desvio de " + Math.round(desvio * 100) + "% contra a base de referência" },
         { chave: "mix", nome: "Qualidade do mix", pontos: Math.round(pD), max: 200,
-          detalhe: vazios > 0 ? vazios + " espaços ficaram vazios" : "Gôndola totalmente ocupada" }
+          detalhe: vazios > 0 ? vazios + " espaços ficaram vazios" : "Espaço totalmente ocupado" }
       ],
       gaps, sugestoes, excesso, foraFormato, overfacing, vazios,
       meuShare: meu, benchShare: bench, idealShare: idealCat,

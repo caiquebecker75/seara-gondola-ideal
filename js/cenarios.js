@@ -1,5 +1,8 @@
 /* Formatos de loja do jogo e metadados das categorias da gondola. */
 
+/* Como o movel da loja e chamado nas telas do jogo. */
+window.NOME_GONDOLA = "Freezer";
+
 window.CATEGORIAS = {
   aves:       { nome: "Aves congeladas",        cor: "#E30613", icone: "🍗" },
   suinos:     { nome: "Suínos",                 cor: "#B00510", icone: "🥩" },

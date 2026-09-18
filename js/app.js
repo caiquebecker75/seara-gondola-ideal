@@ -11,6 +11,7 @@
     cenario: null,
     slots: [],
     filtro: "todos",
+    marca: "todas",
     busca: "",
     tempoRestante: CFG.tempoJogo,
     cronometro: null,
@@ -157,10 +158,11 @@
   function iniciarJogo() {
     estado.slots = new Array(capacidade()).fill(null);
     estado.filtro = "todos";
+    estado.marca = "todas";
     estado.busca = "";
     $("#busca-sku").value = "";
     $("#jogo-loja").textContent = estado.cenario.nome;
-    $("#titulo-gondola").textContent = "Freezer | " + estado.cenario.nome;
+    $("#titulo-gondola").textContent = (window.NOME_GONDOLA || "Gôndola") + " | " + estado.cenario.nome;
     $("#aviso-formato").textContent = estado.cenario.aviso;
     $("#total-catalogo").textContent = SKUS.length;
     montarFiltros();
@@ -203,10 +205,7 @@
       </div>`);
     }
     $("#prateleiras").innerHTML = html.join("");
-    $$("#prateleiras .vao").forEach(v => v.addEventListener("click", () => {
-      const i = Number(v.dataset.slot);
-      if (estado.slots[i]) { estado.slots[i] = null; pintarSlots(); desenharCatalogo(); atualizarMedidor(); }
-    }));
+    $$("#prateleiras .vao").forEach(v => prepararArraste(v, { tipo: "slot", index: Number(v.dataset.slot) }));
   }
 
   function pintarSlots() {
@@ -227,6 +226,22 @@
   }
 
   function montarFiltros() {
+    const marcas = [...new Set(SKUS.map(s => s.marca).filter(Boolean))];
+    const caixaMarca = $("#filtros-marca");
+    if (caixaMarca) {
+      if (marcas.length > 1) {
+        caixaMarca.innerHTML = [`<button data-marca="todas" class="ativo">Todas as marcas</button>`]
+          .concat(marcas.map(m => `<button data-marca="${m}">${m}</button>`)).join("");
+        $$("#filtros-marca button").forEach(b => b.addEventListener("click", () => {
+          $$("#filtros-marca button").forEach(o => o.classList.remove("ativo"));
+          b.classList.add("ativo");
+          estado.marca = b.dataset.marca;
+          desenharCatalogo();
+        }));
+      } else {
+        caixaMarca.style.display = "none";
+      }
+    }
     const usadas = [...new Set(SKUS.map(s => s.cat))];
     const botoes = [`<button data-cat="todos" class="ativo">Tudo</button>`]
       .concat(usadas.map(c => `<button data-cat="${c}">${CATEGORIAS[c].icone} ${CATEGORIAS[c].nome}</button>`));
@@ -246,8 +261,10 @@
     const busca = normal(estado.busca);
     const lista = SKUS.filter(s => {
       const okCat = estado.filtro === "todos" || s.cat === estado.filtro;
-      const okBusca = !busca || normal(s.nome).includes(busca) || s.ean.includes(busca);
-      return okCat && okBusca;
+      const okMarca = estado.marca === "todas" || s.marca === estado.marca;
+      const okBusca = !busca || normal(s.nome).includes(busca) ||
+        (s.marca && normal(s.marca).includes(busca)) || (s.ean || "").includes(busca);
+      return okCat && okMarca && okBusca;
     });
     if (!lista.length) {
       $("#lista-skus").innerHTML = `<p style="font-size:13px;color:var(--cinza)">Nenhum produto encontrado.</p>`;
@@ -255,17 +272,145 @@
     }
     $("#lista-skus").innerHTML = lista.map(s => {
       const q = m.get(s.id) || 0;
+      const etiqueta = s.marca ? s.marca : CATEGORIAS[s.cat].nome;
       return `<div class="sku ${q ? "dentro" : ""}" data-sku="${s.id}">
-        <img src="${s.arquivo}" alt="${s.nome}" loading="lazy">
+        <img src="${s.arquivo}" alt="${s.nome}" draggable="false" loading="lazy">
         <div class="txt">
           <b>${s.nome}</b>
-          <small>EAN ${s.ean}</small>
-          <span class="marca ${s.lancamento ? "novo" : ""}">${s.lancamento ? "Lançamento" : CATEGORIAS[s.cat].nome}</span>
+          <small>${s.ean ? "EAN " + s.ean : CATEGORIAS[s.cat].nome}</small>
+          <span class="marca ${s.lancamento ? "novo" : ""}">${s.lancamento ? "Lançamento" : etiqueta}</span>
         </div>
         <div class="qtd">${q ? q + "x" : "+"}</div>
       </div>`;
     }).join("");
-    $$("#lista-skus .sku").forEach(el => el.addEventListener("click", () => adicionar(el.dataset.sku)));
+    $$("#lista-skus .sku").forEach(el => prepararArraste(el, { tipo: "catalogo", id: el.dataset.sku }));
+  }
+
+  /* ---------------- arrastar e soltar ---------------- */
+  let rolagem = null;
+  let ultimoPonteiro = 0;
+
+  function criarFantasma(sku, x, y) {
+    const f = document.createElement("div");
+    f.className = "fantasma";
+    f.innerHTML = `<img src="${sku.arquivo}" alt=""><span>${sku.nome}</span>`;
+    document.body.appendChild(f);
+    moverFantasma(f, x, y);
+    return f;
+  }
+  function moverFantasma(f, x, y) {
+    f.style.transform = `translate(${x}px, ${y}px)`;
+  }
+  function vaoSob(x, y) {
+    const el = document.elementFromPoint(x, y);
+    return el ? el.closest(".vao") : null;
+  }
+  function marcarAlvo(vao) {
+    $$("#prateleiras .vao").forEach(v => v.classList.toggle("sobre", v === vao));
+  }
+  function rolarSeNaBorda(y) {
+    cancelAnimationFrame(rolagem);
+    const margem = 110;
+    let passo = 0;
+    if (y < margem) passo = -Math.ceil((margem - y) / 6);
+    else if (y > window.innerHeight - margem) passo = Math.ceil((y - (window.innerHeight - margem)) / 6);
+    if (!passo) return;
+    const anda = () => { window.scrollBy(0, passo); rolagem = requestAnimationFrame(anda); };
+    rolagem = requestAnimationFrame(anda);
+  }
+
+  function colocarNoSlot(id, destino) {
+    const anterior = estado.slots[destino];
+    estado.slots[destino] = id;
+    const s = SKUS.find(x => x.id === id);
+    if (anterior && anterior !== id) {
+      const a = SKUS.find(x => x.id === anterior);
+      aviso(s.nome + " entrou no lugar de " + (a ? a.nome : "outro item"));
+    }
+    pintarSlots(); desenharCatalogo(); atualizarMedidor();
+  }
+
+  function trocarSlots(origem, destino) {
+    const t = estado.slots[destino];
+    estado.slots[destino] = estado.slots[origem];
+    estado.slots[origem] = t;
+    pintarSlots(); desenharCatalogo(); atualizarMedidor();
+  }
+
+  function removerSlot(i) {
+    if (!estado.slots[i]) return;
+    estado.slots[i] = null;
+    pintarSlots(); desenharCatalogo(); atualizarMedidor();
+  }
+
+  function prepararArraste(el, origem) {
+    el.addEventListener("pointerdown", ev => {
+      if (ev.button > 0) return;
+      const id = origem.tipo === "slot" ? estado.slots[origem.index] : origem.id;
+      if (!id) return;
+      const sku = SKUS.find(x => x.id === id);
+      if (!sku) return;
+
+      const inicio = { x: ev.clientX, y: ev.clientY };
+      let ativo = false, fantasma = null;
+
+      const mover = e => {
+        const dx = e.clientX - inicio.x, dy = e.clientY - inicio.y;
+        if (!ativo && Math.hypot(dx, dy) < 9) return;
+        if (!ativo) {
+          ativo = true;
+          fantasma = criarFantasma(sku, e.clientX, e.clientY);
+          document.body.classList.add("arrastando");
+          if (origem.tipo === "slot") el.classList.add("saindo");
+        }
+        moverFantasma(fantasma, e.clientX, e.clientY);
+        if (fantasma) fantasma.style.visibility = "hidden";
+        const alvo = vaoSob(e.clientX, e.clientY);
+        if (fantasma) fantasma.style.visibility = "visible";
+        marcarAlvo(alvo);
+        rolarSeNaBorda(e.clientY);
+        e.preventDefault();
+      };
+
+      const soltar = e => {
+        window.removeEventListener("pointermove", mover);
+        window.removeEventListener("pointerup", soltar);
+        window.removeEventListener("pointercancel", soltar);
+        cancelAnimationFrame(rolagem);
+        document.body.classList.remove("arrastando");
+        el.classList.remove("saindo");
+        marcarAlvo(null);
+        if (fantasma) { fantasma.style.visibility = "hidden"; }
+
+        if (!ativo) {
+          if (origem.tipo === "catalogo") adicionar(id); else removerSlot(origem.index);
+        } else {
+          const alvo = vaoSob(e.clientX, e.clientY);
+          if (alvo) {
+            const destino = Number(alvo.dataset.slot);
+            if (origem.tipo === "catalogo") colocarNoSlot(id, destino);
+            else if (destino !== origem.index) trocarSlots(origem.index, destino);
+          } else if (origem.tipo === "slot") {
+            removerSlot(origem.index);
+            aviso(sku.nome + " saiu da gôndola");
+          }
+        }
+        if (fantasma) fantasma.remove();
+        ultimoPonteiro = Date.now();
+      };
+
+      window.addEventListener("pointermove", mover, { passive: false });
+      window.addEventListener("pointerup", soltar);
+      window.addEventListener("pointercancel", soltar);
+    });
+    /* Teclado e navegadores sem evento de ponteiro continuam funcionando no clique. */
+    el.addEventListener("click", ev => {
+      if (Date.now() - ultimoPonteiro < 700) return;
+      const id = origem.tipo === "slot" ? estado.slots[origem.index] : origem.id;
+      if (!id) return;
+      if (origem.tipo === "catalogo") adicionar(id); else removerSlot(origem.index);
+    });
+    el.addEventListener("dragstart", e => e.preventDefault());
   }
 
   function adicionar(id) {
@@ -413,6 +558,9 @@
     $("#res-excessos").innerHTML = (fora + excessos) ||
       `<p style="font-size:13px;color:var(--cinza)">Nenhum excesso relevante. O espaço por item ficou coerente com o giro.</p>`;
 
+    const estilo = getComputedStyle(document.documentElement);
+    const corMinha = estilo.getPropertyValue("--vermelho").trim() || "#E30613";
+    const corBase = estilo.getPropertyValue("--carvao").trim() || "#1B1512";
     const cats = [...new Set([...Object.keys(r.benchShare), ...Object.keys(r.meuShare)])]
       .sort((a, b) => (r.benchShare[b] || 0) - (r.benchShare[a] || 0));
     const maxv = Math.max(...cats.map(x => Math.max(r.meuShare[x] || 0, r.benchShare[x] || 0)), .01);
@@ -420,8 +568,8 @@
       <div class="linha-share">
         <span>${CATEGORIAS[cat].nome}</span>
         <div class="barras-share">
-          <div class="barra-share"><div class="trilho"><i style="width:${(r.meuShare[cat] || 0) / maxv * 100}%;background:#E30613"></i></div><em>${pct(r.meuShare[cat])}</em></div>
-          <div class="barra-share"><div class="trilho"><i style="width:${(r.benchShare[cat] || 0) / maxv * 100}%;background:#1B1512"></i></div><em>${pct(r.benchShare[cat])}</em></div>
+          <div class="barra-share"><div class="trilho"><i style="width:${(r.meuShare[cat] || 0) / maxv * 100}%;background:${corMinha}"></i></div><em>${pct(r.meuShare[cat])}</em></div>
+          <div class="barra-share"><div class="trilho"><i style="width:${(r.benchShare[cat] || 0) / maxv * 100}%;background:${corBase}"></i></div><em>${pct(r.benchShare[cat])}</em></div>
         </div>
       </div>`).join("");
 

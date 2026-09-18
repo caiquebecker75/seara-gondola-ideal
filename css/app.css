@@ -204,6 +204,7 @@ img { max-width: 100%; display: block; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .vao .numero { position: absolute; top: 4px; right: 5px; font-size: 10px; color: #9BAAB4; font-weight: 700; }
+.vao.cheio .numero { display: none; }
 
 /* catalogo */
 .catalogo { min-width: 0; background: #fff; border-radius: var(--raio); box-shadow: var(--sombra); padding: 18px; }
@@ -297,6 +298,25 @@ img { max-width: 100%; display: block; }
 .mini-vao { aspect-ratio: 3 / 4; min-width: 0; border-radius: 6px; background: #F4F1EE; display: grid; place-items: center; overflow: hidden; border: 1px solid #E8E1DB; }
 .mini-vao img { width: 100%; height: 100%; object-fit: contain; padding: 2px; }
 .mini-vao.vazio { background: repeating-linear-gradient(45deg, #F4F1EE, #F4F1EE 5px, #EAE4DE 5px, #EAE4DE 10px); }
+
+/* ---------- arrastar e soltar ---------- */
+.sku, .vao.cheio { touch-action: none; }
+.sku img, .vao img { -webkit-user-drag: none; user-select: none; }
+body.arrastando { user-select: none; }
+.vao.sobre { border-color: var(--vermelho); background: #fff; box-shadow: inset 0 0 0 3px var(--amarelo); }
+.vao.saindo { opacity: .35; }
+.fantasma {
+  position: fixed; top: 0; left: 0; z-index: 400; pointer-events: none;
+  width: 104px; margin: -52px 0 0 -52px; text-align: center;
+  background: #fff; border-radius: 12px; padding: 6px 4px 5px;
+  box-shadow: 0 16px 34px rgba(16, 34, 47, .3); border: 2px solid var(--vermelho);
+  transform: translate(-200px, -200px);
+}
+.fantasma img { width: 100%; height: 62px; object-fit: contain; }
+.fantasma span {
+  display: block; font-size: 9px; font-weight: 700; line-height: 1.15; margin-top: 3px;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
 
 /* ---------- avisos ---------- */
 .aviso-flutuante {

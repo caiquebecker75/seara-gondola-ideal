@@ -138,14 +138,15 @@
           <div id="prateleiras"></div>
         </div>
         <p style="font-size:12px;color:var(--cinza);margin-top:12px" id="dica-gondola">
-          Toque em um produto do catálogo para colocar na gôndola. Toque no produto já exposto para tirar. Mais de um espaço para o mesmo item aumenta o bloco de venda dele.
+          Arraste o produto do catálogo até um espaço da gôndola, ou toque nele para posicionar no primeiro vão livre. Toque no produto já exposto para tirar, ou arraste de um espaço para outro. Mais de um espaço para o mesmo item aumenta o bloco de venda dele.
         </p>
       </div>
 
       <aside class="catalogo">
         <h2>Portfólio Seara</h2>
-        <p class="dica"><span id="total-catalogo">0</span> SKUs reais do portfólio, com EAN de fábrica.</p>
+        <p class="dica"><span id="total-catalogo">0</span> SKUs reais do portfólio, com EAN de fábrica. Arraste para a gôndola ou toque para posicionar.</p>
         <div class="busca"><input type="search" id="busca-sku" placeholder="Buscar produto, ex.: tekitos"></div>
+        <div class="filtros" id="filtros-marca"></div>
         <div class="filtros" id="filtros-cat"></div>
         <div class="lista-skus" id="lista-skus"></div>
       </aside>
@@ -204,8 +205,8 @@
         <p class="apoio">Share de espaço que você deu para cada categoria comparado com a base de referência de venda do formato.</p>
         <div class="comparativo" id="res-share"></div>
         <div class="legenda">
-          <span><i style="background:#E30613"></i>Sua gôndola</span>
-          <span><i style="background:#1B1512"></i>Base de referência de venda</span>
+          <span><i style="background:var(--vermelho)"></i>Sua gôndola</span>
+          <span><i style="background:var(--carvao)"></i>Base de referência de venda</span>
         </div>
       </div>
 

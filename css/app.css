@@ -97,6 +97,13 @@ img { max-width: 100%; display: block; }
   padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
 }
 
+.contador-abertura {
+  margin: 24px auto 0; font-size: 13px; font-weight: 600; color: #fff;
+  background: rgba(0, 0, 0, .22); border-radius: 999px; padding: 7px 18px;
+  display: inline-block; backdrop-filter: blur(2px);
+}
+.contador-abertura:empty { display: none; }
+
 .btn {
   display: inline-flex; align-items: center; gap: 10px; justify-content: center;
   border: 0; border-radius: 999px; padding: 16px 34px;
